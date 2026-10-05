@@ -66,6 +66,22 @@ ALTER TABLE nested_drop_default_dependency DROP COLUMN n; -- { serverError ILLEG
 ALTER TABLE nested_drop_default_dependency DROP COLUMN IF EXISTS n; -- { serverError ILLEGAL_COLUMN }
 DROP TABLE nested_drop_default_dependency;
 
+DROP TABLE IF EXISTS nested_drop_shadowed_subcolumn_dependency;
+
+CREATE TABLE nested_drop_shadowed_subcolumn_dependency
+(
+    `attribute.size0` UInt64,
+    attribute Array(UInt64),
+    dependent UInt64 DEFAULT `attribute.size0`
+)
+ENGINE = MergeTree
+ORDER BY tuple();
+
+ALTER TABLE nested_drop_shadowed_subcolumn_dependency DROP COLUMN attribute;
+INSERT INTO nested_drop_shadowed_subcolumn_dependency (`attribute.size0`) VALUES (7);
+SELECT `attribute.size0`, dependent FROM nested_drop_shadowed_subcolumn_dependency;
+DROP TABLE nested_drop_shadowed_subcolumn_dependency;
+
 DROP VIEW IF EXISTS nested_drop_mv;
 DROP TABLE IF EXISTS nested_drop_mv_source;
 
@@ -287,5 +303,3 @@ FORMAT Null;
 
 SYSTEM START MERGES nested_rename_unflattened_mutation;
 DROP TABLE nested_rename_unflattened_mutation;
-
-

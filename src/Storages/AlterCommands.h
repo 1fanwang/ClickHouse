@@ -291,7 +291,7 @@ public:
 };
 
 /// Column names a `DROP COLUMN` or `CLEAR COLUMN` command actually affects. For a storage column,
-/// all of its subcolumns are also affected. With `share_nested_offsets`, a name that is not itself
+/// all of its unshadowed subcolumns are also affected. With `share_nested_offsets`, a name that is not itself
 /// a column denotes the whole flattened `Nested` group `<name>.*`, reaching every column and subcolumn
 /// of that group. Checks that guard a drop have to run against all of them, otherwise a group name slips
 /// past a check that only ever compares the exact column name.
