@@ -1,11 +1,11 @@
 #include "config.h"
 
-#include <Common/Exception.h>
-#include <Common/filesystemHelpers.h>
 #include <Compression/CompressedReadBuffer.h>
 #include <Compression/CompressedReadBufferFromFile.h>
 #include <Compression/CompressedWriteBuffer.h>
 #include <Compression/CompressionFactory.h>
+#include <Common/Exception.h>
+#include <Common/filesystemHelpers.h>
 #if USE_SZ3
 #include <Compression/registerCompressionCodecs.h>
 #endif
