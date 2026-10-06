@@ -35,6 +35,8 @@ protected:
     /// Allow reading data, compressed by different codecs from one file.
     bool allow_different_codecs;
 
+    bool has_read_lossy_compression = false;
+
     /// Report decompression errors as CANNOT_DECOMPRESS, not CORRUPTED_DATA
     bool external_data;
 
@@ -74,6 +76,8 @@ public:
     /// Some compressed read buffer can do useful seek operation
     virtual void seek(size_t /* offset_in_compressed_file */, size_t /* offset_in_decompressed_block */);
     virtual off_t getPosition() const;
+
+    bool hasReadLossyCompression() const { return has_read_lossy_compression; }
 
     CompressionCodecPtr codec;
 };

@@ -1,9 +1,14 @@
+#include "config.h"
+
 #include <Common/Exception.h>
 #include <Common/filesystemHelpers.h>
 #include <Compression/CompressedReadBuffer.h>
 #include <Compression/CompressedReadBufferFromFile.h>
 #include <Compression/CompressedWriteBuffer.h>
 #include <Compression/CompressionFactory.h>
+#if USE_SZ3
+#include <Compression/registerCompressionCodecs.h>
+#endif
 #include <IO/ReadBufferFromFile.h>
 #include <IO/ReadBufferFromString.h>
 #include <IO/ReadHelpers.h>
@@ -14,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 /// The append-only `Log`/`TinyLog`/`StripeLog` engines write each insert with the current default codec
 /// and append it to the same compressed stream. A server upgrade that changes the default codec
@@ -87,7 +93,40 @@ TEST(MixedCodecAppend, CompressedReadBufferReadsMixedStream)
     std::string decompressed;
     readStringUntilEOF(decompressed, decompressor);
     EXPECT_EQ(decompressed, first + second);
+    EXPECT_FALSE(decompressor.hasReadLossyCompression());
 }
+
+#if USE_SZ3
+TEST(MixedCodecAppend, CompressedReadBufferTracksLossyCodecAcrossMixedStream)
+{
+    std::vector<Float32> first(4096);
+    for (size_t i = 0; i < first.size(); ++i)
+        first[i] = static_cast<Float32>(i) / 7;
+
+    const std::string second = "appended under ZSTD(3).";
+    WriteBufferFromOwnString out;
+    {
+        CompressedWriteBuffer block(out, getCompressionCodecSZ3(sizeof(Float32)));
+        block.write(reinterpret_cast<const char *>(first.data()), first.size() * sizeof(Float32));
+        block.finalize();
+    }
+    {
+        CompressedWriteBuffer block(out, CompressionCodecFactory::instance().get("ZSTD", 3));
+        block.write(second.data(), second.size());
+        block.finalize();
+    }
+
+    const std::string stream = out.str();
+    ReadBufferFromString source(stream);
+    CompressedReadBuffer decompressor(source, /* allow_different_codecs = */ true);
+    std::string decompressed(first.size() * sizeof(Float32) + second.size(), '\0');
+
+    EXPECT_EQ(decompressor.readBig(decompressed.data(), decompressed.size()), decompressed.size());
+    ASSERT_NE(decompressor.codec, nullptr);
+    EXPECT_FALSE(decompressor.codec->isLossyCompression());
+    EXPECT_TRUE(decompressor.hasReadLossyCompression());
+}
+#endif
 
 TEST(MixedCodecAppend, CompressedReadBufferFromFileReadsMixedStream)
 {

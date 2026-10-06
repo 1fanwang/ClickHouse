@@ -189,9 +189,11 @@ static IMergeTreeDataPart::Checksums checkDataPart(
 
     /// Real checksums based on contents of data. Must correspond to checksums.txt. If not - it means the data is broken.
     IMergeTreeDataPart::Checksums checksums_data;
+    NameSet files_with_lossy_compression;
 
     /// This function calculates checksum for both compressed and decompressed contents of compressed file.
-    auto checksum_compressed_file = [&read_settings](const IDataPartStorage & data_part_storage_, const String & file_path)
+    auto checksum_compressed_file
+        = [&read_settings, &files_with_lossy_compression](const IDataPartStorage & data_part_storage_, const String & file_path)
     {
         auto file_buf = data_part_storage_.readFile(file_path, read_settings, std::nullopt);
         HashingReadBuffer compressed_hashing_buf(*file_buf);
@@ -199,6 +201,9 @@ static IMergeTreeDataPart::Checksums checkDataPart(
         HashingReadBuffer uncompressed_hashing_buf(uncompressing_buf);
 
         uncompressed_hashing_buf.ignoreAll();
+        if (uncompressing_buf.hasReadLossyCompression())
+            files_with_lossy_compression.insert(file_path);
+
         return IMergeTreeDataPart::Checksums::Checksum
         {
             compressed_hashing_buf.count(), compressed_hashing_buf.getHash(),
@@ -507,7 +512,17 @@ static IMergeTreeDataPart::Checksums checkDataPart(
         return {};
 
     if (require_checksums || !checksums_txt.files.empty())
+    {
+        /// Lossy codecs cannot preserve the write-time uncompressed hash, so compare the stable on-disk bytes.
+        for (const auto & file_name : files_with_lossy_compression)
+        {
+            auto checksum_it = checksums_txt.files.find(file_name);
+            if (checksum_it != checksums_txt.files.end())
+                checksum_it->second.is_compressed = false;
+        }
+
         checksums_txt.checkEqual(checksums_data, check_uncompressed, data_part->name);
+    }
 
     return checksums_data;
 }
