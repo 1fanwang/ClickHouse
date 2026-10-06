@@ -6,10 +6,11 @@ Spark 3.1.3 with Iceberg 0.11.1 writes two format-v1 snapshots, containing
 
 Iceberg 0.12.1 upgrades the table to format v2 through `ALTER TABLE`. This
 writes `v4.metadata.json` with a `schemas` array and retains both snapshots
-without schema IDs. A subsequent schema evolution and insert (`ALTER TABLE ... ADD COLUMN extra STRING`)
-writes `v5.metadata.json`, whose current snapshot has a schema ID while its two historical snapshots do not.
-The stateless test reads both metadata versions and asserts that time-travel reads of the schema-id-less
-historical snapshot expose `extra` as NULL.
+without schema IDs. The generator then adds a column, renames the original
+column, rewrites the manifests, and appends another row. The current snapshot
+has a schema ID while its two historical snapshots do not. The stateless test
+asserts that historical files still use schema 0 after the rewritten manifest
+header records the current schema.
 
 ## Regenerate the fixture
 

@@ -1,0 +1,148 @@
+{
+  "format-version" : 2,
+  "table-uuid" : "69dfccb8-b28d-4b56-9ddb-50942450f039",
+  "location" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id",
+  "last-sequence-number" : 1,
+  "last-updated-ms" : 1791314100458,
+  "last-column-id" : 2,
+  "current-schema-id" : 2,
+  "schemas" : [ {
+    "type" : "struct",
+    "schema-id" : 0,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "c",
+      "required" : false,
+      "type" : "int"
+    } ]
+  }, {
+    "type" : "struct",
+    "schema-id" : 1,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "c",
+      "required" : false,
+      "type" : "int"
+    }, {
+      "id" : 2,
+      "name" : "extra",
+      "required" : false,
+      "type" : "string"
+    } ]
+  }, {
+    "type" : "struct",
+    "schema-id" : 2,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "renamed_c",
+      "required" : false,
+      "type" : "int"
+    }, {
+      "id" : 2,
+      "name" : "extra",
+      "required" : false,
+      "type" : "string"
+    } ]
+  } ],
+  "default-spec-id" : 0,
+  "partition-specs" : [ {
+    "spec-id" : 0,
+    "fields" : [ ]
+  } ],
+  "last-partition-id" : 999,
+  "default-sort-order-id" : 0,
+  "sort-orders" : [ {
+    "order-id" : 0,
+    "fields" : [ ]
+  } ],
+  "properties" : {
+    "owner" : "clickhouse",
+    "write.parquet.compression-codec" : "uncompressed"
+  },
+  "current-snapshot-id" : 8099206227176019308,
+  "snapshots" : [ {
+    "snapshot-id" : 3259429639428179011,
+    "timestamp-ms" : 1791314092766,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1791314089258",
+      "added-data-files" : "1",
+      "added-records" : "1",
+      "added-files-size" : "357",
+      "changed-partition-count" : "1",
+      "total-records" : "1",
+      "total-data-files" : "1",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/snap-3259429639428179011-1-03fbd820-e6fa-458b-a00a-372d3c03ff40.avro"
+  }, {
+    "snapshot-id" : 6178902665519585308,
+    "parent-snapshot-id" : 3259429639428179011,
+    "timestamp-ms" : 1791314093013,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1791314089258",
+      "added-data-files" : "1",
+      "added-records" : "1",
+      "added-files-size" : "357",
+      "changed-partition-count" : "1",
+      "total-records" : "2",
+      "total-data-files" : "2",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/snap-6178902665519585308-1-e2bca020-468c-49a7-963b-732f59adee12.avro"
+  }, {
+    "sequence-number" : 1,
+    "snapshot-id" : 8099206227176019308,
+    "parent-snapshot-id" : 6178902665519585308,
+    "timestamp-ms" : 1791314100458,
+    "summary" : {
+      "operation" : "replace",
+      "manifests-created" : "1",
+      "manifests-kept" : "0",
+      "manifests-replaced" : "2",
+      "entries-processed" : "0",
+      "changed-partition-count" : "0",
+      "total-records" : "2",
+      "total-data-files" : "2",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/snap-8099206227176019308-1-4ace6e00-85de-486e-8289-2b69733da8fc.avro",
+    "schema-id" : 2
+  } ],
+  "snapshot-log" : [ {
+    "timestamp-ms" : 1791314092766,
+    "snapshot-id" : 3259429639428179011
+  }, {
+    "timestamp-ms" : 1791314093013,
+    "snapshot-id" : 6178902665519585308
+  }, {
+    "timestamp-ms" : 1791314100458,
+    "snapshot-id" : 8099206227176019308
+  } ],
+  "metadata-log" : [ {
+    "timestamp-ms" : 1791314091129,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v1.metadata.json"
+  }, {
+    "timestamp-ms" : 1791314092766,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v2.metadata.json"
+  }, {
+    "timestamp-ms" : 1791314093013,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v3.metadata.json"
+  }, {
+    "timestamp-ms" : 1791314097856,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v4.metadata.json"
+  }, {
+    "timestamp-ms" : 1791314099370,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v5.metadata.json"
+  }, {
+    "timestamp-ms" : 1791314099426,
+    "metadata-file" : "/tmp/clickhouse-iceberg-optional-snapshot-schema-id/default/iceberg_optional_snapshot_schema_id/metadata/v6.metadata.json"
+  } ]
+}

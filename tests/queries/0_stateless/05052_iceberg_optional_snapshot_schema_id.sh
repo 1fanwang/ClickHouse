@@ -28,15 +28,15 @@ ${CLICKHOUSE_CLIENT} --query "
 
 echo "Current snapshot with legacy history"
 ${CLICKHOUSE_CLIENT} --query "
-    SELECT c, extra FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id') ORDER BY c"
+    SELECT renamed_c, extra FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id') ORDER BY renamed_c"
 
 echo "Historical snapshot without schema-id"
 ${CLICKHOUSE_CLIENT} --iceberg_snapshot_id="${HISTORICAL_SNAPSHOT_ID}" --query "
-    SELECT c, extra FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id') ORDER BY c"
+    SELECT renamed_c, extra FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id') ORDER BY renamed_c"
 
 echo "Current snapshot with explicit null schema-id"
 python3 - "$CURDIR/data_minio/iceberg_optional_snapshot_schema_id/metadata/v4.metadata.json" <<'PY' | ${CLICKHOUSE_CLIENT} -q "
-    INSERT INTO FUNCTION s3(s3_conn, filename='iceberg_optional_snapshot_schema_id/metadata/v4_null_schema.metadata.json', structure='line String', format='LineAsString')
+    INSERT INTO FUNCTION s3(s3_conn, filename='iceberg_optional_snapshot_schema_id/metadata/v4-00000000-0000-0000-0000-000000000000.metadata.json', structure='line String', format='LineAsString')
     SETTINGS s3_truncate_on_insert=1
     SELECT * FROM input('line String') FORMAT LineAsString
 "
@@ -53,12 +53,12 @@ PY
 
 ${CLICKHOUSE_CLIENT} --query "
     SELECT c FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id',
-        SETTINGS iceberg_metadata_file_path='metadata/v4_null_schema.metadata.json') ORDER BY c"
+        SETTINGS iceberg_metadata_file_path='metadata/v4-00000000-0000-0000-0000-000000000000.metadata.json') ORDER BY c"
 
 echo "Historical snapshot with explicit null schema-id"
 ${CLICKHOUSE_CLIENT} --iceberg_snapshot_id="${HISTORICAL_SNAPSHOT_ID}" --query "
     SELECT c FROM icebergS3(s3_conn, filename='iceberg_optional_snapshot_schema_id',
-        SETTINGS iceberg_metadata_file_path='metadata/v4_null_schema.metadata.json') ORDER BY c"
+        SETTINGS iceberg_metadata_file_path='metadata/v4-00000000-0000-0000-0000-000000000000.metadata.json') ORDER BY c"
 
 echo "Current snapshot from raw legacy v3 metadata"
 ${CLICKHOUSE_CLIENT} --query "

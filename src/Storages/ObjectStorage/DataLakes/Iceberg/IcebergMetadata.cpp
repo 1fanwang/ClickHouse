@@ -426,11 +426,13 @@ static Poco::JSON::Object::Ptr traverseMetadataAndFindNecessarySnapshotObject(
     {
         const auto snapshot = snapshots->getObject(static_cast<UInt32>(i));
         const auto current_snapshot_id = snapshot->getValue<Int64>(f_metadata_snapshot_id);
+        /// V1 snapshots have no sequence number; parseTableSchema normalizes their single schema to ID 0.
+        const bool is_v1_snapshot
+            = !snapshot->has(f_metadata_sequence_number) || snapshot->isNull(f_metadata_sequence_number);
         if (snapshot->has(f_schema_id) && !snapshot->isNull(f_schema_id))
-        {
-            const auto current_schema_id = snapshot->getValue<Int32>(f_schema_id);
-            schema_processor->registerSnapshotWithSchemaId(current_snapshot_id, current_schema_id);
-        }
+            schema_processor->registerSnapshotWithSchemaId(current_snapshot_id, snapshot->getValue<Int32>(f_schema_id));
+        else if (is_v1_snapshot)
+            schema_processor->registerSnapshotWithSchemaId(current_snapshot_id, 0);
         if (current_snapshot_id == snapshot_id)
         {
             current_snapshot = snapshot;

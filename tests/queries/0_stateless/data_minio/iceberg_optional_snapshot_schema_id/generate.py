@@ -47,13 +47,31 @@ try:
 
     if stage == "upgrade":
         spark.sql(f"ALTER TABLE {name} ADD COLUMN extra STRING")
+        spark.sql(f"ALTER TABLE {name} RENAME COLUMN c TO renamed_c")
+        catalog_and_identifier = spark._jvm.org.apache.iceberg.spark.Spark3Util.catalogAndIdentifier(
+            spark._jsparkSession, name
+        )
+        iceberg_table = spark._jvm.org.apache.iceberg.spark.Spark3Util.toIcebergTable(
+            catalog_and_identifier.catalog().loadTable(catalog_and_identifier.identifier())
+        )
+        spark._jvm.org.apache.iceberg.spark.actions.SparkActions.get(
+            spark._jsparkSession
+        ).rewriteManifests(iceberg_table).execute()
         spark.sql(f"INSERT INTO {name} VALUES (3, cast(null as string))")
-        metadata = json.loads((table / "metadata" / "v5.metadata.json").read_text())
-        assert metadata["current-schema-id"] == 1
-        assert len(metadata["schemas"]) == 2
-        assert len(metadata["snapshots"]) == 3
-        assert sum("schema-id" in snapshot for snapshot in metadata["snapshots"]) == 1
-        assert [tuple(row) for row in spark.sql(f"SELECT c, extra FROM {name} ORDER BY c").collect()] == [(1, None), (2, None), (3, None)]
+        metadata_paths = sorted(
+            table.joinpath("metadata").glob("v*.metadata.json"),
+            key=lambda path: int(path.name.removeprefix("v").removesuffix(".metadata.json")),
+        )
+        metadata = json.loads(metadata_paths[-1].read_text())
+        assert metadata["current-schema-id"] == 2
+        assert len(metadata["schemas"]) == 3
+        assert sum("schema-id" not in snapshot for snapshot in metadata["snapshots"]) == 2
+        assert any(snapshot["summary"]["operation"] == "replace" for snapshot in metadata["snapshots"])
+        assert [tuple(row) for row in spark.sql(f"SELECT renamed_c, extra FROM {name} ORDER BY renamed_c").collect()] == [
+            (1, None),
+            (2, None),
+            (3, None),
+        ]
         print(json.dumps(metadata, indent=2))
 finally:
     spark.stop()
